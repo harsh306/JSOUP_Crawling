@@ -1,6 +1,7 @@
 package com.example.harsh.new_;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -15,6 +16,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.ImageView;
 
@@ -27,6 +29,7 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.CookieHandler;
 import java.net.CookieManager;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -37,14 +40,28 @@ import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.DataNode;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.jsoup.select.NodeVisitor;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Bundle;
+import android.provider.MediaStore;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.webkit.WebView;
+import android.widget.Button;
 public class MainActivity extends AppCompatActivity {
     EditText ed;
     EditText uid;
     EditText pass;
     EditText cap;
+    WebView wv;
     ImageView image1;
     public final String URL = "https://www.irctc.co.in";
     public String UID;
@@ -58,14 +75,13 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         ed = (EditText)findViewById(R.id.search);
+        wv=(WebView)findViewById(R.id.webView);
+        wv.setBackgroundColor(0);
         uid = (EditText)findViewById(R.id.UID);
         pass = (EditText)findViewById(R.id.pass);
         cap = (EditText)findViewById(R.id.cap);
-         image1 = (ImageView) findViewById(R.id.imageView);
-
-
-
-
+        image1=(ImageView)findViewById(R.id.imageView);
+       // image1 = (ImageView) findViewById(R.id.imageView);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -76,6 +92,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
     public void crawl(View view){
 
         UID=uid.getText().toString();
@@ -89,9 +106,10 @@ public class MainActivity extends AppCompatActivity {
                 int  s=0;
                 String url=null;
                 try {
-                    File f =new File("cap.png");
+
                     Document doc = Jsoup.connect(URL).get();
                     Log.e("Status","connection estabished");
+
                     //username
                     Element hidden = doc.select("input[name=j_username]").first();
                     hidden.attr("value",UID);        //setting attr of input tag
@@ -105,10 +123,12 @@ public class MainActivity extends AppCompatActivity {
                     //hidden3.attr("value","captcha");
                     // str+=hidden3.attr("value");
                     Element image = doc.select("img[id=cimage]").first();
-                    str+=image.attr("src")+" ";
+                    str+=image.attr("src")+" :: ";
                     //Element image2=image;
-                    //url = image2.absUrl(image.attr("src"));
-
+                    //List<DataNode> dn=image.dataNodes();
+                    url=image.attr("abs:src");
+                   // url = image.absUrl(url);
+                    str+=url;
                     Element login =doc.select("input#loginbutton").first();
 
 
@@ -122,21 +142,42 @@ public class MainActivity extends AppCompatActivity {
                 ed.post(new Runnable() {
                     @Override
                     public void run() {
+
                         ed.setText(finalStr);
+
                     }
                 });
 
-                /*final String finalUrl = url;
+                final String finalUrl = url;
                 image1.post(new Runnable() {
                     @Override
                     public void run() {
-//                        Picasso.with(getApplicationContext()).load(finalUrl).into(image1);
+                        Log.e("key2", "Image Run ....");
+
+/*
+
+                            try {
+                                Log.e("src",finalUrl);
+                                URL url = new URL(finalUrl);
+                                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                                connection.setDoInput(true);
+                                connection.connect();
+                                InputStream input = connection.getInputStream();
+                                Bitmap myBitmap = BitmapFactory.decodeStream(input);
+                                Log.e("Bitmap","returned");
+                                image1.setImageBitmap(myBitmap);
 
 
-                      //  image1.setImageBitmap(BitmapFactory.decodeFile(finalUrl));
-                    //    image1.setImageDrawable(Drawable.createFromPath(finalUrl));
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                Log.e("Exception",e.getMessage());
+
+                            }*/
+
+                       // image1.setImageDrawable(Drawable.createFromPath(finalUrl));
+                       image1.setImageBitmap(BitmapFactory.decodeFile(finalUrl));
                     }
-                });*/
+                });
             }
         }).start();
     }
