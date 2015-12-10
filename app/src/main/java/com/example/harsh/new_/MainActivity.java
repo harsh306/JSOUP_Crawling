@@ -42,16 +42,45 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 public class MainActivity extends AppCompatActivity {
     EditText ed;
+    EditText uid;
+    EditText pass;
+    EditText cap;
+    ImageView image1;
+    public final String URL = "https://www.irctc.co.in";
+    public String UID;
+    public String PASS;
+    public String CAP;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        ed = (EditText)findViewById(R.id.search);
-        final ImageView image1 = (ImageView) findViewById(R.id.imageView);
-        final String URL = "https://www.irctc.co.in";
 
+        ed = (EditText)findViewById(R.id.search);
+        uid = (EditText)findViewById(R.id.UID);
+        pass = (EditText)findViewById(R.id.pass);
+        cap = (EditText)findViewById(R.id.cap);
+         image1 = (ImageView) findViewById(R.id.imageView);
+
+
+
+
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+        });
+    }
+    public void crawl(View view){
+
+        UID=uid.getText().toString();
+        PASS=pass.getText().toString();
+        CAP=cap.getText().toString().toUpperCase();
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -65,22 +94,23 @@ public class MainActivity extends AppCompatActivity {
                     Log.e("Status","connection estabished");
                     //username
                     Element hidden = doc.select("input[name=j_username]").first();
-                    hidden.attr("value","kevalo");
-                    str+=hidden.attr("value");
+                    hidden.attr("value",UID);        //setting attr of input tag
+                    str+=hidden.attr("value")+" ";
                     //password
                     Element hidden2 = doc.select("input[name=j_password]").first();
-                    hidden2.attr("value","mypass");
-                    str+=hidden2.attr("value");
+                    hidden2.attr("value",PASS);
+                    str+=hidden2.attr("value")+" ";
 
                     Element hidden3 = doc.select("input[name=j_captcha]").first();
-                    //hidden.attr("value","kevalo");
-                   // str+=hidden3.attr("value");
+                    //hidden3.attr("value","captcha");
+                    // str+=hidden3.attr("value");
                     Element image = doc.select("img[id=cimage]").first();
-                    str+=image.attr("src");
-                    Element image2=image;
-                    url = image2.absUrl(image.attr("src"));
+                    str+=image.attr("src")+" ";
+                    //Element image2=image;
+                    //url = image2.absUrl(image.attr("src"));
+
                     Element login =doc.select("input#loginbutton").first();
-                    Document doc1 = Jsoup.parse(f, "binary", url);
+
 
 
 
@@ -95,41 +125,21 @@ public class MainActivity extends AppCompatActivity {
                         ed.setText(finalStr);
                     }
                 });
-                final String finalUrl = url;
+
+                /*final String finalUrl = url;
                 image1.post(new Runnable() {
                     @Override
                     public void run() {
 //                        Picasso.with(getApplicationContext()).load(finalUrl).into(image1);
 
 
-                        image1.setImageBitmap(BitmapFactory.decodeFile(finalUrl));
-                        image1.setImageDrawable(Drawable.createFromPath(finalUrl));
+                      //  image1.setImageBitmap(BitmapFactory.decodeFile(finalUrl));
+                    //    image1.setImageDrawable(Drawable.createFromPath(finalUrl));
                     }
-                });
+                });*/
             }
         }).start();
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
     }
-    /*publicvoid open(View view) {
-
-
-
-        //- See more at: http://www.survivingwithandroid.com/2014/04/parsing-html-in-android-with-jsoup.html#sthash.Q80tzqZN.dpuf
-        //Elements topicList = doc.select("h2.topic");
-
-        //Intent i = new Intent(Intent.ACTION_VIEW);
-        //i.setData(Uri.parse(URL));
-        //startActivity(i);
-    }
-
-*/
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
